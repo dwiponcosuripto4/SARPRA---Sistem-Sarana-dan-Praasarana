@@ -10,7 +10,7 @@
             body { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif; }
         </style>
     </head>
-    <body class="min-h-screen bg-[#faf8ff] text-[#131b2e] antialiased">
+    <body class="min-h-screen bg-[#f8fafc] text-[#131b2e] antialiased">
         @php
             $pengguna = auth()->user();
             $namaPeran = optional($pengguna?->role)->name ?? 'Pengguna';
@@ -31,23 +31,23 @@
                     <span class="text-xs font-semibold text-[#8aa4cf] uppercase tracking-wider px-2">Modul Operasional</span>
                 </div>
                 <nav class="flex flex-col gap-1 px-3">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {{ $menuAktif === 'dashboard' ? 'bg-[#022448] text-white font-bold shadow-sm' : 'text-[#8aa4cf] hover:bg-[#022448] hover:text-white' }}">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {{ $menuAktif === 'dashboard' ? 'bg-[#022448] text-white font-bold shadow-sm' : 'text-[#8aa4cf] hover:bg-[#254670] hover:text-white' }}">
                         <span class="material-symbols-outlined text-xl">grid_view</span>
                         <span>Dashboard</span>
                     </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#8aa4cf] hover:bg-[#022448] hover:text-white transition-colors">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#8aa4cf] hover:bg-[#254670] hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-xl">manage_accounts</span>
                         <span>Manajemen Pengguna</span>
                     </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#8aa4cf] hover:bg-[#022448] hover:text-white transition-colors">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#8aa4cf] hover:bg-[#254670] hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-xl">inventory_2</span>
                         <span>Data Master</span>
                     </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#8aa4cf] hover:bg-[#022448] hover:text-white transition-colors">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#8aa4cf] hover:bg-[#254670] hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-xl">settings</span>
                         <span>Konfigurasi Sistem</span>
                     </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#8aa4cf] hover:bg-[#022448] hover:text-white transition-colors">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#8aa4cf] hover:bg-[#254670] hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-xl">history</span>
                         <span>Riwayat Aktivitas</span>
                     </a>
@@ -77,15 +77,10 @@
                         <span>/</span>
                         <span class="text-[#43474e]">{{ $namaPeran }}</span>
                         <span>/</span>
-                        <span class="text-[#131b2e] font-bold">{{ $judulHalaman ?? 'Dashboard' }}</span>
+                        <span class="text-[#022448] font-bold bg-[#d5e3fc]/60 px-2 py-0.5 rounded">{{ $judulHalaman ?? 'Dashboard' }}</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-3 md:gap-5">
-                    <div class="relative hidden md:flex items-center">
-                        <span class="material-symbols-outlined absolute left-3 text-lg text-[#515f74] pointer-events-none">search</span>
-                        <input class="w-80 h-10 pl-10 pr-16 bg-[#f2f3ff] rounded-lg text-[#131b2e] placeholder:text-[#74777f] text-xs focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" placeholder="Cari aset, inventaris, serial number..." type="text">
-                        <kbd class="absolute right-2 px-1.5 py-0.5 bg-white text-[#515f74] rounded text-[11px] shadow-sm pointer-events-none" style="font-family: 'JetBrains Mono', monospace;">Ctrl + K</kbd>
-                    </div>
                     <div class="flex items-center gap-1">
                         <button aria-label="Notifikasi" class="relative p-2 text-[#515f74] hover:text-[#131b2e] hover:bg-[#f2f3ff] rounded-lg transition-colors" type="button">
                             <span class="material-symbols-outlined text-[22px]">notifications</span>
@@ -108,7 +103,7 @@
                             <span class="material-symbols-outlined text-lg text-[#515f74]">keyboard_arrow_down</span>
                         </button>
 
-                        <flux:menu>
+                        <flux:menu class="mt-2">
                             <flux:menu.radio.group>
                                 <div class="p-0 text-sm font-normal">
                                     <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
@@ -158,5 +153,15 @@
         @endpersist
 
         @fluxScripts
+
+        <script>
+            // Halaman SARPRA selalu terang: paksa appearance Flux ke light
+            // agar menu/dropdown tidak mengikuti dark-mode OS.
+            if (window.Flux) {
+                window.Flux.applyAppearance('light');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
     </body>
 </html>

@@ -23,4 +23,30 @@ class RiwayatAktivitas extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    /**
+     * Status tampilan turunan dari jenis aktivitas.
+     *
+     * @return array{label: string, dot: string, kelas: string}
+     */
+    public function statusTampilan(): array
+    {
+        return match ($this->activity) {
+            'tolak' => [
+                'label' => 'Gagal / Peringatan',
+                'dot' => 'bg-red-500',
+                'kelas' => 'bg-red-50 text-red-700 border-red-200',
+            ],
+            'ajukan' => [
+                'label' => 'Diproses',
+                'dot' => 'bg-blue-500 animate-pulse',
+                'kelas' => 'bg-blue-50 text-blue-700 border-blue-200',
+            ],
+            default => [
+                'label' => 'Berhasil',
+                'dot' => 'bg-emerald-500',
+                'kelas' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+            ],
+        };
+    }
 }
