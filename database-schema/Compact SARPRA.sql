@@ -1,388 +1,347 @@
-CREATE TABLE `role` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(50) UNIQUE NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `user` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `role_id` bigint NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(150) UNIQUE NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `is_active` boolean DEFAULT true,
-  `last_login_at` timestamp,
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `kategori_barang` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(100) UNIQUE NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `satuan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(50) UNIQUE NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `lokasi` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `kondisi_barang` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(50) UNIQUE NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `status_barang` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(50) UNIQUE NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `jenis_pemeliharaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(100) UNIQUE NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `jenis_pengadaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(100) UNIQUE NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `prioritas` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(50) UNIQUE NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `periode` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(50) UNIQUE NOT NULL,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `perencanaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `user_id` bigint NOT NULL,
-  `kategori_barang_id` bigint NOT NULL,
-  `satuan_id` bigint NOT NULL,
-  `prioritas_id` bigint NOT NULL,
-  `periode_id` bigint NOT NULL,
-  `nama_kebutuhan` varchar(150) NOT NULL,
-  `jumlah` int NOT NULL,
-  `alasan` text,
-  `status` varchar(50) NOT NULL,
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `riwayat_perencanaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `perencanaan_id` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
-  `status` varchar(50) NOT NULL,
-  `catatan` text,
-  `created_at` timestamp
-);
-
-CREATE TABLE `pengadaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `perencanaan_id` bigint,
-  `jenis_pengadaan_id` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
-  `nomor_pengadaan` varchar(100) UNIQUE,
-  `tanggal_pengajuan` date NOT NULL,
-  `alasan` text,
-  `status` varchar(50) NOT NULL,
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `detail_pengadaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `pengadaan_id` bigint NOT NULL,
-  `kategori_barang_id` bigint NOT NULL,
-  `satuan_id` bigint NOT NULL,
-  `nama_barang` varchar(150) NOT NULL,
-  `spesifikasi` text,
-  `jumlah` int NOT NULL,
-  `estimasi_harga` decimal(15,2),
-  `subtotal` decimal(15,2),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `dokumen_pengadaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `pengadaan_id` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
-  `nama_dokumen` varchar(150) NOT NULL,
-  `file_path` varchar(255) NOT NULL,
-  `file_type` varchar(50),
-  `file_size` bigint,
-  `created_at` timestamp
-);
-
-CREATE TABLE `persetujuan_pengadaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `pengadaan_id` bigint NOT NULL,
-  `pimpinan_id` bigint NOT NULL,
-  `status` varchar(50) NOT NULL,
-  `catatan` text,
-  `tanggal_persetujuan` timestamp,
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `riwayat_pengadaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `pengadaan_id` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
-  `status` varchar(50) NOT NULL,
-  `catatan` text,
-  `created_at` timestamp
-);
-
-CREATE TABLE `barang` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `kategori_barang_id` bigint NOT NULL,
-  `satuan_id` bigint NOT NULL,
-  `lokasi_id` bigint NOT NULL,
-  `kondisi_barang_id` bigint NOT NULL,
-  `status_barang_id` bigint NOT NULL,
-  `pengadaan_id` bigint,
-  `perencanaan_id` bigint,
-  `kode_barang` varchar(100) UNIQUE NOT NULL,
-  `nama_barang` varchar(150) NOT NULL,
-  `merk` varchar(100),
-  `spesifikasi` text,
-  `jumlah` int NOT NULL,
-  `tahun_perolehan` year,
-  `sumber_perolehan` varchar(100),
-  `harga_perolehan` decimal(15,2),
-  `foto` varchar(255),
-  `dokumen` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `mutasi_barang` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `barang_id` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
-  `lokasi_asal_id` bigint,
-  `lokasi_tujuan_id` bigint NOT NULL,
-  `tanggal_mutasi` date NOT NULL,
-  `alasan` text,
-  `created_at` timestamp
-);
-
-CREATE TABLE `riwayat_barang` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `barang_id` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
-  `kondisi_barang_id` bigint,
-  `status_barang_id` bigint,
-  `lokasi_id` bigint,
-  `catatan` text,
-  `created_at` timestamp
-);
-
-CREATE TABLE `pemeliharaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `barang_id` bigint NOT NULL,
-  `jenis_pemeliharaan_id` bigint NOT NULL,
-  `prioritas_id` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
-  `nomor_pemeliharaan` varchar(100) UNIQUE,
-  `tanggal_pengajuan` date NOT NULL,
-  `masalah` text NOT NULL,
-  `estimasi_biaya` decimal(15,2),
-  `status` varchar(50) NOT NULL,
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-CREATE TABLE `dokumen_pemeliharaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `pemeliharaan_id` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
-  `nama_dokumen` varchar(150) NOT NULL,
-  `file_path` varchar(255) NOT NULL,
-  `file_type` varchar(50),
-  `file_size` bigint,
-  `created_at` timestamp
-);
-
-CREATE TABLE `riwayat_pemeliharaan` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `pemeliharaan_id` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
-  `tanggal` date NOT NULL,
-  `jenis_tindakan` varchar(150),
-  `masalah` text,
-  `tindakan` text,
-  `biaya` decimal(15,2),
-  `pelaksana` varchar(150),
-  `status` varchar(50) NOT NULL,
-  `catatan` text,
-  `dokumen_sebelum` varchar(255),
-  `dokumen_sesudah` varchar(255),
-  `created_at` timestamp
-);
-
-CREATE TABLE `notifikasi` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `user_id` bigint NOT NULL,
-  `title` varchar(150) NOT NULL,
-  `message` text NOT NULL,
-  `type` varchar(50),
-  `reference_type` varchar(100),
-  `reference_id` bigint,
-  `is_read` boolean DEFAULT false,
-  `read_at` timestamp,
-  `created_at` timestamp
-);
-
-CREATE TABLE `riwayat_aktivitas` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `user_id` bigint,
-  `activity` varchar(150) NOT NULL,
-  `description` text,
-  `module` varchar(100),
-  `reference_type` varchar(100),
-  `reference_id` bigint,
-  `ip_address` varchar(45),
-  `user_agent` text,
-  `created_at` timestamp
-);
-
-CREATE TABLE `konfigurasi_sistem` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `key` varchar(100) UNIQUE NOT NULL,
-  `value` text,
-  `description` varchar(255),
-  `created_at` timestamp,
-  `updated_at` timestamp
-);
-
-ALTER TABLE `user` ADD FOREIGN KEY (`role_id`) REFERENCES `role` (`id`);
-
-ALTER TABLE `perencanaan` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `perencanaan` ADD FOREIGN KEY (`kategori_barang_id`) REFERENCES `kategori_barang` (`id`);
-
-ALTER TABLE `perencanaan` ADD FOREIGN KEY (`satuan_id`) REFERENCES `satuan` (`id`);
-
-ALTER TABLE `perencanaan` ADD FOREIGN KEY (`prioritas_id`) REFERENCES `prioritas` (`id`);
-
-ALTER TABLE `perencanaan` ADD FOREIGN KEY (`periode_id`) REFERENCES `periode` (`id`);
-
-ALTER TABLE `riwayat_perencanaan` ADD FOREIGN KEY (`perencanaan_id`) REFERENCES `perencanaan` (`id`);
-
-ALTER TABLE `riwayat_perencanaan` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `pengadaan` ADD FOREIGN KEY (`perencanaan_id`) REFERENCES `perencanaan` (`id`);
-
-ALTER TABLE `pengadaan` ADD FOREIGN KEY (`jenis_pengadaan_id`) REFERENCES `jenis_pengadaan` (`id`);
-
-ALTER TABLE `pengadaan` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `detail_pengadaan` ADD FOREIGN KEY (`pengadaan_id`) REFERENCES `pengadaan` (`id`);
-
-ALTER TABLE `detail_pengadaan` ADD FOREIGN KEY (`kategori_barang_id`) REFERENCES `kategori_barang` (`id`);
-
-ALTER TABLE `detail_pengadaan` ADD FOREIGN KEY (`satuan_id`) REFERENCES `satuan` (`id`);
-
-ALTER TABLE `dokumen_pengadaan` ADD FOREIGN KEY (`pengadaan_id`) REFERENCES `pengadaan` (`id`);
-
-ALTER TABLE `dokumen_pengadaan` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `persetujuan_pengadaan` ADD FOREIGN KEY (`pengadaan_id`) REFERENCES `pengadaan` (`id`);
-
-ALTER TABLE `persetujuan_pengadaan` ADD FOREIGN KEY (`pimpinan_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `riwayat_pengadaan` ADD FOREIGN KEY (`pengadaan_id`) REFERENCES `pengadaan` (`id`);
-
-ALTER TABLE `riwayat_pengadaan` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `barang` ADD FOREIGN KEY (`kategori_barang_id`) REFERENCES `kategori_barang` (`id`);
-
-ALTER TABLE `barang` ADD FOREIGN KEY (`satuan_id`) REFERENCES `satuan` (`id`);
-
-ALTER TABLE `barang` ADD FOREIGN KEY (`lokasi_id`) REFERENCES `lokasi` (`id`);
-
-ALTER TABLE `barang` ADD FOREIGN KEY (`kondisi_barang_id`) REFERENCES `kondisi_barang` (`id`);
-
-ALTER TABLE `barang` ADD FOREIGN KEY (`status_barang_id`) REFERENCES `status_barang` (`id`);
-
-ALTER TABLE `barang` ADD FOREIGN KEY (`pengadaan_id`) REFERENCES `pengadaan` (`id`);
-
-ALTER TABLE `barang` ADD FOREIGN KEY (`perencanaan_id`) REFERENCES `perencanaan` (`id`);
-
-ALTER TABLE `mutasi_barang` ADD FOREIGN KEY (`barang_id`) REFERENCES `barang` (`id`);
-
-ALTER TABLE `mutasi_barang` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `mutasi_barang` ADD FOREIGN KEY (`lokasi_asal_id`) REFERENCES `lokasi` (`id`);
-
-ALTER TABLE `mutasi_barang` ADD FOREIGN KEY (`lokasi_tujuan_id`) REFERENCES `lokasi` (`id`);
-
-ALTER TABLE `riwayat_barang` ADD FOREIGN KEY (`barang_id`) REFERENCES `barang` (`id`);
-
-ALTER TABLE `riwayat_barang` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `riwayat_barang` ADD FOREIGN KEY (`kondisi_barang_id`) REFERENCES `kondisi_barang` (`id`);
-
-ALTER TABLE `riwayat_barang` ADD FOREIGN KEY (`status_barang_id`) REFERENCES `status_barang` (`id`);
-
-ALTER TABLE `riwayat_barang` ADD FOREIGN KEY (`lokasi_id`) REFERENCES `lokasi` (`id`);
-
-ALTER TABLE `pemeliharaan` ADD FOREIGN KEY (`barang_id`) REFERENCES `barang` (`id`);
-
-ALTER TABLE `pemeliharaan` ADD FOREIGN KEY (`jenis_pemeliharaan_id`) REFERENCES `jenis_pemeliharaan` (`id`);
-
-ALTER TABLE `pemeliharaan` ADD FOREIGN KEY (`prioritas_id`) REFERENCES `prioritas` (`id`);
-
-ALTER TABLE `pemeliharaan` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `dokumen_pemeliharaan` ADD FOREIGN KEY (`pemeliharaan_id`) REFERENCES `pemeliharaan` (`id`);
-
-ALTER TABLE `dokumen_pemeliharaan` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `riwayat_pemeliharaan` ADD FOREIGN KEY (`pemeliharaan_id`) REFERENCES `pemeliharaan` (`id`);
-
-ALTER TABLE `riwayat_pemeliharaan` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `notifikasi` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `riwayat_aktivitas` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
+
+ // =====================================================
+// SARPRA — Sistem Pengelolaan Sarana dan Prasarana
+// Database Schema
+// =====================================================
+
+// SISTEM & PENGGUNA
+Table role {
+  id bigint [pk, increment]
+  name varchar(50) [unique, not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table user {
+  id bigint [pk, increment]
+  role_id bigint [not null]
+  name varchar(100) [not null]
+  email varchar(150) [unique, not null]
+  password varchar(255) [not null]
+  is_active boolean [default: true]
+  last_login_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+// MASTER DATA
+Table kategori_barang {
+  id bigint [pk, increment]
+  name varchar(100) [unique, not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table satuan {
+  id bigint [pk, increment]
+  name varchar(50) [unique, not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table lokasi {
+  id bigint [pk, increment]
+  name varchar(100) [not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table kondisi_barang {
+  id bigint [pk, increment]
+  name varchar(50) [unique, not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table status_barang {
+  id bigint [pk, increment]
+  name varchar(50) [unique, not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table jenis_pemeliharaan {
+  id bigint [pk, increment]
+  name varchar(100) [unique, not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table jenis_pengadaan {
+  id bigint [pk, increment]
+  name varchar(100) [unique, not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table prioritas {
+  id bigint [pk, increment]
+  name varchar(50) [unique, not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table periode {
+  id bigint [pk, increment]
+  name varchar(50) [unique, not null]
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+// PERENCANAAN KEBUTUHAN
+Table perencanaan {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  kategori_barang_id bigint [not null]
+  satuan_id bigint [not null]
+  prioritas_id bigint [not null]
+  periode_id bigint [not null]
+  nama_kebutuhan varchar(150) [not null]
+  jumlah int [not null]
+  alasan text
+  status varchar(50) [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table riwayat_perencanaan {
+  id bigint [pk, increment]
+  perencanaan_id bigint [not null]
+  user_id bigint [not null]
+  status varchar(50) [not null]
+  catatan text
+  created_at timestamp
+}
+
+// PENGADAAN
+Table pengadaan {
+  id bigint [pk, increment]
+  perencanaan_id bigint
+  jenis_pengadaan_id bigint [not null]
+  user_id bigint [not null]
+  nomor_pengadaan varchar(100) [unique]
+  tanggal_pengajuan date [not null]
+  alasan text
+  status varchar(50) [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table detail_pengadaan {
+  id bigint [pk, increment]
+  pengadaan_id bigint [not null]
+  kategori_barang_id bigint [not null]
+  satuan_id bigint [not null]
+  nama_barang varchar(150) [not null]
+  spesifikasi text
+  jumlah int [not null]
+  estimasi_harga decimal(15,2)
+  subtotal decimal(15,2)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table dokumen_pengadaan {
+  id bigint [pk, increment]
+  pengadaan_id bigint [not null]
+  user_id bigint [not null]
+  nama_dokumen varchar(150) [not null]
+  file_path varchar(255) [not null]
+  file_type varchar(50)
+  file_size bigint
+  created_at timestamp
+}
+
+Table persetujuan_pengadaan {
+  id bigint [pk, increment]
+  pengadaan_id bigint [not null]
+  pimpinan_id bigint [not null]
+  status varchar(50) [not null]
+  catatan text
+  tanggal_persetujuan timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table riwayat_pengadaan {
+  id bigint [pk, increment]
+  pengadaan_id bigint [not null]
+  user_id bigint [not null]
+  status varchar(50) [not null]
+  catatan text
+  created_at timestamp
+}
+
+// INVENTARISASI BARANG
+Table barang {
+  id bigint [pk, increment]
+  kategori_barang_id bigint [not null]
+  satuan_id bigint [not null]
+  lokasi_id bigint [not null]
+  kondisi_barang_id bigint [not null]
+  status_barang_id bigint [not null]
+  pengadaan_id bigint
+  perencanaan_id bigint
+  kode_barang varchar(100) [unique, not null]
+  nama_barang varchar(150) [not null]
+  merk varchar(100)
+  spesifikasi text
+  jumlah int [not null]
+  tahun_perolehan year
+  sumber_perolehan varchar(100)
+  harga_perolehan decimal(15,2)
+  foto varchar(255)
+  dokumen varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table riwayat_barang {
+  id bigint [pk, increment]
+  barang_id bigint [not null]
+  user_id bigint [not null]
+  kondisi_barang_id bigint
+  status_barang_id bigint
+  lokasi_id bigint
+  catatan text
+  created_at timestamp
+}
+
+// PEMELIHARAAN
+Table pemeliharaan {
+  id bigint [pk, increment]
+  barang_id bigint [not null]
+  jenis_pemeliharaan_id bigint [not null]
+  prioritas_id bigint [not null]
+  user_id bigint [not null]
+  nomor_pemeliharaan varchar(100) [unique]
+  tanggal_pengajuan date [not null]
+  masalah text [not null]
+  estimasi_biaya decimal(15,2)
+  status varchar(50) [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table dokumen_pemeliharaan {
+  id bigint [pk, increment]
+  pemeliharaan_id bigint [not null]
+  user_id bigint [not null]
+  nama_dokumen varchar(150) [not null]
+  file_path varchar(255) [not null]
+  file_type varchar(50)
+  file_size bigint
+  created_at timestamp
+}
+
+Table riwayat_pemeliharaan {
+  id bigint [pk, increment]
+  pemeliharaan_id bigint [not null]
+  user_id bigint [not null]
+  tanggal date [not null]
+  jenis_tindakan varchar(150)
+  masalah text
+  tindakan text
+  biaya decimal(15,2)
+  pelaksana varchar(150)
+  status varchar(50) [not null]
+  catatan text
+  dokumen_sebelum varchar(255)
+  dokumen_sesudah varchar(255)
+  created_at timestamp
+}
+
+// NOTIFIKASI
+Table notifikasi {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  title varchar(150) [not null]
+  message text [not null]
+  type varchar(50)
+  reference_type varchar(100)
+  reference_id bigint
+  is_read boolean [default: false]
+  read_at timestamp
+  created_at timestamp
+}
+
+// RIWAYAT AKTIVITAS
+Table riwayat_aktivitas {
+  id bigint [pk, increment]
+  user_id bigint
+  activity varchar(150) [not null]
+  description text
+  module varchar(100)
+  reference_type varchar(100)
+  reference_id bigint
+  ip_address varchar(45)
+  user_agent text
+  created_at timestamp
+}
+
+// RELATIONSHIPS
+// Sistem & User
+Ref: user.role_id > role.id
+
+// Perencanaan
+Ref: perencanaan.user_id > user.id
+Ref: perencanaan.kategori_barang_id > kategori_barang.id
+Ref: perencanaan.satuan_id > satuan.id
+Ref: perencanaan.prioritas_id > prioritas.id
+Ref: perencanaan.periode_id > periode.id
+Ref: riwayat_perencanaan.perencanaan_id > perencanaan.id
+Ref: riwayat_perencanaan.user_id > user.id
+
+// Pengadaan
+Ref: pengadaan.perencanaan_id > perencanaan.id
+Ref: pengadaan.jenis_pengadaan_id > jenis_pengadaan.id
+Ref: pengadaan.user_id > user.id
+Ref: detail_pengadaan.pengadaan_id > pengadaan.id
+Ref: detail_pengadaan.kategori_barang_id > kategori_barang.id
+Ref: detail_pengadaan.satuan_id > satuan.id
+Ref: dokumen_pengadaan.pengadaan_id > pengadaan.id
+Ref: dokumen_pengadaan.user_id > user.id
+Ref: persetujuan_pengadaan.pengadaan_id > pengadaan.id
+Ref: persetujuan_pengadaan.pimpinan_id > user.id
+Ref: riwayat_pengadaan.pengadaan_id > pengadaan.id
+Ref: riwayat_pengadaan.user_id > user.id
+
+// Inventarisasi
+Ref: barang.kategori_barang_id > kategori_barang.id
+Ref: barang.satuan_id > satuan.id
+Ref: barang.lokasi_id > lokasi.id
+Ref: barang.kondisi_barang_id > kondisi_barang.id
+Ref: barang.status_barang_id > status_barang.id
+Ref: barang.pengadaan_id > pengadaan.id
+Ref: barang.perencanaan_id > perencanaan.id
+Ref: riwayat_barang.barang_id > barang.id
+Ref: riwayat_barang.user_id > user.id
+Ref: riwayat_barang.kondisi_barang_id > kondisi_barang.id
+Ref: riwayat_barang.status_barang_id > status_barang.id
+Ref: riwayat_barang.lokasi_id > lokasi.id
+
+// Pemeliharaan
+Ref: pemeliharaan.barang_id > barang.id
+Ref: pemeliharaan.jenis_pemeliharaan_id > jenis_pemeliharaan.id
+Ref: pemeliharaan.prioritas_id > prioritas.id
+Ref: pemeliharaan.user_id > user.id
+Ref: dokumen_pemeliharaan.pemeliharaan_id > pemeliharaan.id
+Ref: dokumen_pemeliharaan.user_id > user.id
+Ref: riwayat_pemeliharaan.pemeliharaan_id > pemeliharaan.id
+Ref: riwayat_pemeliharaan.user_id > user.id
+
+// Notifikasi
+Ref: notifikasi.user_id > user.id
+
+// Aktivitas
+Ref: riwayat_aktivitas.user_id > user.id
