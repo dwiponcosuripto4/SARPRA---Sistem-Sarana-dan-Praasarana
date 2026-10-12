@@ -33,12 +33,11 @@ Version Control: Git & GitHub
 
 ## 2.1 Administrator
 
-Bertanggung jawab terhadap pengelolaan pengguna dan konfigurasi sistem.
+Bertanggung jawab terhadap pengelolaan pengguna dan data master.
 
 **Hak/Fungsi:** - Login dan logout. - Mengelola akun pengguna. -
 Menambah pengguna. - Mengubah data pengguna. - Menonaktifkan pengguna. -
-Mengatur role pengguna. - Mengelola data master tertentu. - Mengelola
-konfigurasi sistem. - Melihat aktivitas sistem.
+Mengatur role pengguna. - Mengelola data master tertentu. - Melihat aktivitas sistem.
 
 ## 2.2 Pengelola Sarana & Prasarana
 
@@ -46,8 +45,7 @@ Bertanggung jawab terhadap pengelolaan data dan proses sarana-prasarana.
 
 **Hak/Fungsi:** - Login dan logout. - Melihat dashboard. - Mengelola
 perencanaan kebutuhan. - Mengajukan dan mengelola pengadaan. - Mengelola
-data inventaris. - Mengajukan dan mengelola pemeliharaan. - Mengelola
-laporan. - Melihat notifikasi. - Melihat riwayat aktivitas.
+data inventaris. - Mengajukan dan mengelola pemeliharaan. - Mencetak atau mengekspor data dari modul operasional sesuai kebutuhan. - Melihat notifikasi. - Melihat riwayat aktivitas.
 
 ## 2.3 Pimpinan / Pejabat Berwenang
 
@@ -188,7 +186,6 @@ Foto barang. - Dokumen pendukung.
 -   Perubahan kondisi.
 -   Perubahan lokasi.
 -   Perubahan status.
--   Pencatatan perpindahan barang.
 
 ### Riwayat Barang
 
@@ -276,7 +273,6 @@ Data master dapat disesuaikan berdasarkan kebutuhan organisasi.
 
 ------------------------------------------------------------------------
 
-
 # 7.1 Data Structure Overview
 
 ## Sistem & Pengguna
@@ -307,7 +303,6 @@ Master Data
 ├── prioritas
 └── periode
 ```
-
 
 ## Perencanaan
 
@@ -359,7 +354,6 @@ Data utama:
 ```text
 Inventarisasi
 ├── barang
-├── mutasi_barang
 └── riwayat_barang
 ```
 
@@ -378,7 +372,6 @@ Data utama:
 - Kondisi.
 - Status.
 - Foto/dokumen.
-- Mutasi barang.
 - Riwayat barang.
 
 ## Pemeliharaan
@@ -410,15 +403,13 @@ Data utama:
 ```text
 Sistem Pendukung
 ├── notifikasi
-├── riwayat_aktivitas
-└── konfigurasi_sistem
+└── riwayat_aktivitas
 ```
 
 Data utama:
 - Notifikasi pengguna.
 - Aktivitas pengguna dan sistem.
 - Referensi aktivitas terhadap data/modul.
-- Konfigurasi sistem.
 
 ## Hubungan Data Utama
 
@@ -433,7 +424,6 @@ Inventarisasi
      ↓
 Pemeliharaan
 ```
-
 
 Pelaporan menggunakan data dari berbagai domain:
 
@@ -516,8 +506,7 @@ Menyetujui pengadaan. - Menolak pengadaan. - Mengubah status.
 
 ## Hak Akses
 
-1.  Administrator mengelola pengguna, data master, dan konfigurasi
-    sistem.
+1.  Administrator mengelola pengguna dan data master.
 2.  Pengelola mengelola proses sarana-prasarana.
 3.  Pimpinan memiliki kewenangan persetujuan pengadaan dan monitoring.
 4.  Pengguna hanya dapat mengakses fitur sesuai role.
@@ -528,42 +517,35 @@ Menyetujui pengadaan. - Menolak pengadaan. - Mengubah status.
 
 Workflow utama menggambarkan proses bisnis yang menjadi dasar perancangan UI/UX dan implementasi fitur SARPRA.
 
-## 7.2 Screen List
+## 9.0 Screen List UI Berdasarkan Role
 
-### Administrator
-- Dashboard
-- Manajemen Pengguna
-- Detail Pengguna
-- Master Data
-- Konfigurasi Sistem
-- Riwayat Aktivitas
+### 1. Administrator
 
-### Pengelola Sarana & Prasarana
-- Dashboard
-- Daftar Perencanaan
-- Tambah Perencanaan
-- Detail Perencanaan
-- Daftar Pengadaan
-- Pengajuan Pengadaan
-- Detail Pengadaan
-- Daftar Barang
-- Tambah Barang
-- Detail Barang
-- Edit Barang
-- Riwayat Barang
-- Daftar Pemeliharaan
-- Pengajuan Pemeliharaan
-- Detail Pemeliharaan
-- Riwayat Pemeliharaan
-- Laporan
+1. Login
+2. Dashboard Admin
+3. Manajemen Pengguna
+4. Data Master
+5. Riwayat Aktivitas
 
-### Pimpinan
-- Dashboard
-- Daftar Pengajuan Pengadaan
-- Detail Pengajuan Pengadaan
-- Persetujuan Pengadaan
-- Monitoring Aset
-- Laporan
+### 2. Pengelola Sarana & Prasarana
+
+1. Dashboard Pengelola
+2. Perencanaan Kebutuhan
+3. Pengadaan
+4. Inventarisasi
+5. Pemeliharaan
+
+### 3. Pimpinan / Pejabat Berwenang
+
+1. Dashboard Pimpinan
+2. Pengadaan & Persetujuan
+3. Pelaporan
+
+Catatan:
+- Screen yang digunakan bersama oleh beberapa role tidak perlu dibuat
+  sebagai desain terpisah jika struktur dan komponennya sama.
+- Daftar ini berfokus pada halaman utama untuk desain MVP, bukan seluruh
+  variasi form, detail, atau operasi CRUD.
 
 ## 9.1 Alur Umum Sistem
 
@@ -719,8 +701,10 @@ Informasi kondisi / riwayat barang diperbarui
 
 ## 9.6 Workflow Pelaporan
 
+Screen Pelaporan tersendiri digunakan oleh Pimpinan untuk melihat rekapitulasi data lintas modul sebagai bahan monitoring dan pengambilan keputusan. Pengelola menggunakan fitur cetak/export langsung dari halaman modul operasional terkait.
+
 ```text
-Pengguna dengan hak akses
+Pimpinan
   ↓
 Membuka Pelaporan
   ↓
@@ -728,14 +712,28 @@ Memilih jenis laporan
   ↓
 Menentukan filter
   ↓
-Sistem menampilkan laporan
+Sistem menampilkan rekapitulasi
   ↓
 Cetak / Export?
   ├── Tidak → Kembali ke halaman laporan
   └── Ya → Cetak / Export laporan
 ```
 
-Jenis laporan:
+Untuk Pengelola:
+
+```text
+Pengelola
+  ↓
+Membuka halaman modul operasional
+  ↓
+Mengatur pencarian/filter data jika diperlukan
+  ↓
+Memilih fitur cetak/export
+  ↓
+Sistem menghasilkan data sesuai modul dan filter
+```
+
+Jenis laporan/rekapitulasi untuk Pimpinan:
 - Inventaris.
 - Pengadaan.
 - Kebutuhan.
@@ -757,8 +755,6 @@ Mengelola pengguna
   └── Role & hak akses
   ↓
 Mengelola data master
-  ↓
-Mengelola konfigurasi sistem
   ↓
 Melihat aktivitas sistem
   ↓
