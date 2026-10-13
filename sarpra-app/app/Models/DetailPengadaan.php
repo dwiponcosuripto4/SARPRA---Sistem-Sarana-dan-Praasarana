@@ -21,4 +21,14 @@ class DetailPengadaan extends Model
     {
         return $this->belongsTo(Pengadaan::class, 'pengadaan_id');
     }
+
+    public function kategori(): BelongsTo
+    {
+        return $this->belongsTo(KategoriBarang::class, 'kategori_barang_id');
+    }
+
+    public function satuan(): BelongsTo
+    {
+        return $this->belongsTo(Satuan::class, 'satuan_id');
+    }
 }

@@ -20,4 +20,9 @@ class RiwayatPengadaan extends Model
     {
         return $this->belongsTo(Pengadaan::class, 'pengadaan_id');
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

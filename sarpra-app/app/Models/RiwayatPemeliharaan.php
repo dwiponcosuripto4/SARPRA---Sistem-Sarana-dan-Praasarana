@@ -29,4 +29,9 @@ class RiwayatPemeliharaan extends Model
     {
         return $this->belongsTo(Pemeliharaan::class, 'pemeliharaan_id');
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

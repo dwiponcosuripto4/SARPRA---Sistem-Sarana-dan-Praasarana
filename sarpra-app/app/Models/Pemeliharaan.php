@@ -34,6 +34,11 @@ class Pemeliharaan extends Model
         return $this->belongsTo(JenisPemeliharaan::class, 'jenis_pemeliharaan_id');
     }
 
+    public function prioritas(): BelongsTo
+    {
+        return $this->belongsTo(Prioritas::class, 'prioritas_id');
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -42,5 +47,10 @@ class Pemeliharaan extends Model
     public function dokumen(): HasMany
     {
         return $this->hasMany(DokumenPemeliharaan::class, 'pemeliharaan_id');
+    }
+
+    public function riwayat(): HasMany
+    {
+        return $this->hasMany(RiwayatPemeliharaan::class, 'pemeliharaan_id');
     }
 }

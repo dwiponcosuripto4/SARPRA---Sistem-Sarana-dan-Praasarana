@@ -48,4 +48,14 @@ class Pengadaan extends Model
     {
         return $this->hasOne(PersetujuanPengadaan::class, 'pengadaan_id');
     }
+
+    public function dokumen(): HasMany
+    {
+        return $this->hasMany(DokumenPengadaan::class, 'pengadaan_id');
+    }
+
+    public function riwayat(): HasMany
+    {
+        return $this->hasMany(RiwayatPengadaan::class, 'pengadaan_id');
+    }
 }

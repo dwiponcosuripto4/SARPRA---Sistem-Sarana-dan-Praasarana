@@ -82,6 +82,35 @@ class DashboardTest extends TestCase
         ]);
     }
 
+    public function test_pimpinan_dapat_menolak_dengan_catatan(): void
+    {
+        $pimpinan = User::factory()->create([
+            'role_id' => Role::firstOrCreate(['name' => 'Pimpinan'])->id,
+        ]);
+
+        $pengadaan = Pengadaan::factory()->create([
+            'status' => 'menunggu_persetujuan',
+            'user_id' => $pimpinan->id,
+            'jenis_pengadaan_id' => JenisPengadaan::create(['name' => 'Tolak Uji'])->id,
+            'perencanaan_id' => null,
+        ]);
+
+        $this->actingAs($pimpinan)
+            ->post(route('persetujuan.tolak', $pengadaan), ['catatan' => 'Anggaran belum tersedia.'])
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertEquals('ditolak', $pengadaan->refresh()->status);
+        $this->assertDatabaseHas('persetujuan_pengadaan', [
+            'pengadaan_id' => $pengadaan->id,
+            'status' => 'ditolak',
+            'catatan' => 'Anggaran belum tersedia.',
+        ]);
+        $this->assertDatabaseHas('riwayat_pengadaan', [
+            'pengadaan_id' => $pengadaan->id,
+            'status' => 'ditolak',
+        ]);
+    }
+
     public function test_non_pimpinan_cannot_decide_pengadaan(): void
     {
         $pengelola = User::factory()->create([
