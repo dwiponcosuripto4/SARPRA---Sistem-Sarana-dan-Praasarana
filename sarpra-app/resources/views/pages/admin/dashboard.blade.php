@@ -1,4 +1,4 @@
-<x-layouts::app.sarpra :title="__('Dashboard Administrator')" :notifBelumDibaca="$notifBelumDibaca">
+<x-layouts::app :title="__('Dashboard Administrator')" :notifBelumDibaca="$notifBelumDibaca">
     @php
         $labelAktivitas = [
             'login' => 'Autentikasi', 'tambah' => 'Tambah Data', 'ubah' => 'Ubah Data',
@@ -246,4 +246,4 @@
             }
         })();
     </script>
-</x-layouts::app.sarpra>
+</x-layouts::app>

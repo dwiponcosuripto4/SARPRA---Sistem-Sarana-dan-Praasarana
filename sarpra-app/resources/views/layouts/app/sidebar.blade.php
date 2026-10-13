@@ -1,101 +1,68 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-    <head>
-        @include('partials.head')
-    </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <flux:sidebar.header>
-                <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
-                <flux:sidebar.collapse class="lg:hidden" />
-            </flux:sidebar.header>
+{{-- Sidebar SARPRA: menu modul operasional per role. --}}
+@php
+    $namaPeran = auth()->user()?->role?->name;
+    $menuAktif = $menuAktif ?? 'dashboard';
 
-            <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
-                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-            </flux:sidebar.nav>
+    $menuAdmin = [
+        ['key' => 'dashboard', 'icon' => 'grid_view', 'label' => 'Dashboard', 'href' => route('dashboard')],
+        ['key' => 'pengguna', 'icon' => 'manage_accounts', 'label' => 'Manajemen Pengguna', 'href' => route('pengguna.index')],
+        ['key' => 'master', 'icon' => 'inventory_2', 'label' => 'Data Master', 'href' => route('master.index')],
+        ['key' => 'aktivitas', 'icon' => 'history', 'label' => 'Riwayat Aktivitas', 'href' => route('aktivitas.index')],
+    ];
 
-            <flux:spacer />
+    $menuPengelola = [
+        ['key' => 'dashboard', 'icon' => 'grid_view', 'label' => 'Dashboard', 'href' => route('dashboard')],
+        ['key' => 'perencanaan', 'icon' => 'assignment', 'label' => 'Perencanaan Kebutuhan', 'href' => route('perencanaan.index')],
+        ['key' => 'pengadaan', 'icon' => 'shopping_bag', 'label' => 'Pengadaan', 'href' => route('pengadaan.index')],
+        ['key' => 'inventarisasi', 'icon' => 'inventory_2', 'label' => 'Inventarisasi', 'href' => route('inventarisasi.index')],
+        ['key' => 'pemeliharaan', 'icon' => 'build_circle', 'label' => 'Pemeliharaan', 'href' => route('pemeliharaan.index')],
+    ];
 
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
+    $menuPimpinan = [
+        ['key' => 'dashboard', 'icon' => 'grid_view', 'label' => 'Dashboard', 'href' => route('dashboard')],
+        ['key' => 'persetujuan', 'icon' => 'assignment_turned_in', 'label' => 'Pengadaan & Persetujuan', 'href' => route('persetujuan.index')],
+        ['key' => 'monitoring', 'icon' => 'monitoring', 'label' => 'Monitoring Aset', 'href' => route('monitoring.index')],
+        ['key' => 'pelaporan', 'icon' => 'summarize', 'label' => 'Pelaporan', 'href' => route('pelaporan.index')],
+    ];
 
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
+    $menuItems = match ($namaPeran) {
+        'Pengelola Sarana & Prasarana' => $menuPengelola,
+        'Pimpinan' => $menuPimpinan,
+        default => $menuAdmin,
+    };
+@endphp
 
-            <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
-        </flux:sidebar>
-
-        <!-- Mobile User Menu -->
-        <flux:header class="lg:hidden">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
-
-            <flux:spacer />
-
-            <flux:dropdown position="top" align="end">
-                <flux:profile
-                    :initials="auth()->user()->initials()"
-                    icon-trailing="chevron-down"
-                />
-
-                <flux:menu>
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <flux:avatar
-                                    :name="auth()->user()->name"
-                                    :initials="auth()->user()->initials()"
-                                />
-
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
-                                    <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
-                                </div>
-                            </div>
-                        </div>
-                    </flux:menu.radio.group>
-
-                    <flux:menu.separator />
-
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                            {{ __('Settings') }}
-                        </flux:menu.item>
-                    </flux:menu.radio.group>
-
-                    <flux:menu.separator />
-
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <flux:menu.item
-                            as="button"
-                            type="submit"
-                            icon="arrow-right-start-on-rectangle"
-                            class="w-full cursor-pointer"
-                            data-test="logout-button"
-                        >
-                            {{ __('Log out') }}
-                        </flux:menu.item>
-                    </form>
-                </flux:menu>
-            </flux:dropdown>
-        </flux:header>
-
-        {{ $slot }}
-
-        @persist('toast')
-            <flux:toast.group>
-                <flux:toast />
-            </flux:toast.group>
-        @endpersist
-
-        @fluxScripts
-    </body>
-</html>
+<aside class="fixed left-0 top-0 h-full w-64 bg-[#1e3a5f] z-50 hidden lg:flex flex-col justify-between shadow-sm">
+    <div class="flex flex-col">
+        <div class="h-16 px-6 flex items-center gap-3 border-b border-[#022448]">
+            <x-sarpra-logo class="size-8 rounded-lg shadow-sm" />
+            <div class="flex flex-col">
+                <span class="text-sm font-bold tracking-tight text-white leading-tight">SARPRA</span>
+                <span class="text-xs font-semibold text-[#8aa4cf] tracking-wider uppercase">Asset &amp; Infra</span>
+            </div>
+        </div>
+        <div class="px-5 pt-6 pb-2">
+            <span class="text-xs font-semibold text-[#8aa4cf] uppercase tracking-wider px-2">Modul Operasional</span>
+        </div>
+        <nav class="flex flex-col gap-1 px-3">
+            @foreach ($menuItems as $item)
+                <a href="{{ $item['href'] }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {{ $menuAktif === $item['key'] ? 'bg-[#022448] text-white font-bold shadow-sm' : 'text-[#8aa4cf] hover:bg-[#254670] hover:text-white' }}">
+                    <span class="material-symbols-outlined text-xl">{{ $item['icon'] }}</span>
+                    <span>{{ $item['label'] }}</span>
+                </a>
+            @endforeach
+        </nav>
+    </div>
+    <div class="p-5">
+        <div class="mx-1 mb-5 rounded-lg bg-[#022448] p-4">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#85f8c4] opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-[#85f8c4]"></span>
+                </span>
+                <span class="text-xs font-semibold text-white">SARPRA v1.0</span>
+            </div>
+            <div class="text-xs text-[#8aa4cf] leading-relaxed">Sistem Pengelolaan Sarana dan Prasarana</div>
+        </div>
+    </div>
+</aside>

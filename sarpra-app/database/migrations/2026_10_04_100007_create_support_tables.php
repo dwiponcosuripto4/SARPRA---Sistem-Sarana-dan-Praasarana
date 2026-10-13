@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Sistem pendukung: notifikasi, riwayat aktivitas, konfigurasi.
+     * Sistem pendukung: notifikasi dan riwayat aktivitas.
      */
     public function up(): void
     {
@@ -36,14 +36,6 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->timestamp('created_at')->nullable();
         });
-
-        Schema::create('konfigurasi_sistem', function (Blueprint $table) {
-            $table->id();
-            $table->string('key', 100)->unique();
-            $table->text('value')->nullable();
-            $table->string('description', 255)->nullable();
-            $table->timestamps();
-        });
     }
 
     /**
@@ -51,7 +43,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('konfigurasi_sistem');
         Schema::dropIfExists('riwayat_aktivitas');
         Schema::dropIfExists('notifikasi');
     }

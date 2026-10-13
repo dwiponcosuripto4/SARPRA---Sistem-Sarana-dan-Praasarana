@@ -28,6 +28,21 @@ class Perencanaan extends Model
         return $this->belongsTo(KategoriBarang::class, 'kategori_barang_id');
     }
 
+    public function satuan(): BelongsTo
+    {
+        return $this->belongsTo(Satuan::class, 'satuan_id');
+    }
+
+    public function prioritas(): BelongsTo
+    {
+        return $this->belongsTo(Prioritas::class, 'prioritas_id');
+    }
+
+    public function periode(): BelongsTo
+    {
+        return $this->belongsTo(Periode::class, 'periode_id');
+    }
+
     public function riwayat(): HasMany
     {
         return $this->hasMany(RiwayatPerencanaan::class, 'perencanaan_id');

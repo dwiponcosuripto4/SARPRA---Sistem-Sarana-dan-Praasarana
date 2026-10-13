@@ -33,17 +33,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('mutasi_barang', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('barang_id')->constrained('barang')->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('lokasi_asal_id')->nullable()->constrained('lokasi')->nullOnDelete();
-            $table->foreignId('lokasi_tujuan_id')->constrained('lokasi');
-            $table->date('tanggal_mutasi');
-            $table->text('alasan')->nullable();
-            $table->timestamp('created_at')->nullable();
-        });
-
         Schema::create('riwayat_barang', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barang_id')->constrained('barang')->cascadeOnDelete();
@@ -62,7 +51,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('riwayat_barang');
-        Schema::dropIfExists('mutasi_barang');
         Schema::dropIfExists('barang');
     }
 };

@@ -29,6 +29,16 @@ class Pemeliharaan extends Model
         return $this->belongsTo(Barang::class, 'barang_id');
     }
 
+    public function jenis(): BelongsTo
+    {
+        return $this->belongsTo(JenisPemeliharaan::class, 'jenis_pemeliharaan_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function dokumen(): HasMany
     {
         return $this->hasMany(DokumenPemeliharaan::class, 'pemeliharaan_id');

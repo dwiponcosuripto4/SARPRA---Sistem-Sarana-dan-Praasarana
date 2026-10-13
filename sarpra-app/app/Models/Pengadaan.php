@@ -29,6 +29,16 @@ class Pengadaan extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function perencanaan(): BelongsTo
+    {
+        return $this->belongsTo(Perencanaan::class, 'perencanaan_id');
+    }
+
+    public function jenis(): BelongsTo
+    {
+        return $this->belongsTo(JenisPengadaan::class, 'jenis_pengadaan_id');
+    }
+
     public function detail(): HasMany
     {
         return $this->hasMany(DetailPengadaan::class, 'pengadaan_id');

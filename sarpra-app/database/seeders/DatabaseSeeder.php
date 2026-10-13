@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             MasterDataSeeder::class,
-            KonfigurasiSistemSeeder::class,
             TransaksiSeeder::class,
         ]);
     }
