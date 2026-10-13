@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\RiwayatAktivitas;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -34,9 +35,18 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureViews();
         $this->configureRateLimiting();
 
-        // Catat waktu login terakhir pengguna.
+        // Catat waktu login terakhir + riwayat aktivitas login pengguna.
         Event::listen(Login::class, function (Login $event): void {
             $event->user->forceFill(['last_login_at' => now()])->save();
+
+            RiwayatAktivitas::create([
+                'user_id' => $event->user->getAuthIdentifier(),
+                'activity' => 'login',
+                'description' => 'Masuk ke sistem SARPRA.',
+                'module' => 'pengguna',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
         });
     }
 

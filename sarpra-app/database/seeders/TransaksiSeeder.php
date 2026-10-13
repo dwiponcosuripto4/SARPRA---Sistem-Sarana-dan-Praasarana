@@ -8,6 +8,7 @@ use App\Models\Pemeliharaan;
 use App\Models\Pengadaan;
 use App\Models\Perencanaan;
 use App\Models\PersetujuanPengadaan;
+use App\Models\RiwayatAktivitas;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -46,5 +47,9 @@ class TransaksiSeeder extends Seeder
 
         // Pemeliharaan.
         Pemeliharaan::factory()->count(11)->create();
+
+        // Riwayat aktivitas demo agar dashboard admin berisi data.
+        // Riwayat lain tetap hanya via factory testing / business process.
+        RiwayatAktivitas::factory()->count(11)->create();
     }
 }
