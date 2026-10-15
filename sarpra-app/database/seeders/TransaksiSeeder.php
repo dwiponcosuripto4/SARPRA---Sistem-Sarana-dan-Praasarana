@@ -15,41 +15,100 @@ use Illuminate\Database\Seeder;
 class TransaksiSeeder extends Seeder
 {
     /**
-     * Hanya data inti yang di-seed (11 baris tiap tabel).
-     * Factory riwayat & mutasi tersedia khusus testing, tidak di-seed.
-     * Notifikasi & dokumen dibuat oleh business process saat aplikasi berjalan.
+     * Seed 1 baris demo per tabel transaksi (aman dijalankan berulang).
+     * Setiap baris yang dibuat juga dicatat ke riwayat_aktivitas
+     * seolah-olah dikerjakan user demo via aplikasi.
      * Urutan mengikuti alur bisnis: Perencanaan → Pengadaan →
      * Inventarisasi → Pemeliharaan.
      */
     public function run(): void
     {
-        // Perencanaan.
-        Perencanaan::factory()->count(11)->create();
-
-        // Pengadaan.
-        Pengadaan::factory()->count(11)->create();
-        DetailPengadaan::factory()->count(11)->create();
-
-        // Satu keputusan pimpinan untuk setiap pengadaan.
-        $pimpinanId = User::whereHas('role', fn ($q) => $q->where('name', 'Pimpinan'))
-            ->inRandomOrder()->value('id')
+        $pengelolaId = User::where('email', 'pengelola@sarpra.go.id')->value('id')
+            ?? User::inRandomOrder()->value('id');
+        $pimpinanId = User::where('email', 'pimpinan@sarpra.go.id')->value('id')
             ?? User::inRandomOrder()->value('id');
 
-        foreach (Pengadaan::all() as $pengadaan) {
-            PersetujuanPengadaan::factory()->create([
-                'pengadaan_id' => $pengadaan->id,
+        $catat = fn (array $data) => RiwayatAktivitas::create([
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'seeder',
+            ...$data,
+        ]);
+
+        // Perencanaan.
+        $rencana = Perencanaan::factory()->count(1)->create()->first();
+        $catat([
+            'user_id' => $pengelolaId,
+            'activity' => 'tambah',
+            'description' => "Membuat usulan kebutuhan {$rencana->nama_kebutuhan}.",
+            'module' => 'perencanaan',
+            'reference_type' => 'perencanaan',
+            'reference_id' => $rencana->id,
+        ]);
+
+        // Pengadaan.
+        $pengadaan = Pengadaan::factory()->count(1)->create()->first();
+        $catat([
+            'user_id' => $pengelolaId,
+            'activity' => 'tambah',
+            'description' => "Membuat pengajuan pengadaan {$pengadaan->nomor_pengadaan}.",
+            'module' => 'pengadaan',
+            'reference_type' => 'pengadaan',
+            'reference_id' => $pengadaan->id,
+        ]);
+
+        $detail = DetailPengadaan::factory()->count(1)->create([
+            'pengadaan_id' => $pengadaan->id,
+        ])->first();
+        $catat([
+            'user_id' => $pengelolaId,
+            'activity' => 'tambah',
+            'description' => "Menambahkan rincian {$detail->nama_barang} ke {$pengadaan->nomor_pengadaan}.",
+            'module' => 'pengadaan',
+            'reference_type' => 'pengadaan',
+            'reference_id' => $pengadaan->id,
+        ]);
+
+        // Satu keputusan pimpinan untuk setiap pengadaan yang belum diputus.
+        foreach (Pengadaan::doesntHave('persetujuan')->get() as $item) {
+            $putusan = PersetujuanPengadaan::factory()->create([
+                'pengadaan_id' => $item->id,
                 'pimpinan_id' => $pimpinanId,
+            ]);
+            $catat([
+                'user_id' => $pimpinanId,
+                'activity' => $putusan->status === 'ditolak' ? 'tolak' : 'setujui',
+                'description' => ($putusan->status === 'ditolak' ? 'Menolak' : 'Menyetujui').
+                    " pengajuan pengadaan {$item->nomor_pengadaan}.",
+                'module' => 'pengadaan',
+                'reference_type' => 'pengadaan',
+                'reference_id' => $item->id,
             ]);
         }
 
         // Inventarisasi.
-        Barang::factory()->count(11)->create();
+        $barang = Barang::factory()->count(1)->create()->first();
+        $catat([
+            'user_id' => $pengelolaId,
+            'activity' => 'tambah',
+            'description' => "Mencatat barang {$barang->kode_barang} ({$barang->nama_barang}) ke inventaris.",
+            'module' => 'barang',
+            'reference_type' => 'barang',
+            'reference_id' => $barang->id,
+        ]);
 
         // Pemeliharaan.
-        Pemeliharaan::factory()->count(11)->create();
+        $tiket = Pemeliharaan::factory()->count(1)->create(['barang_id' => $barang->id])->first();
+        $catat([
+            'user_id' => $pengelolaId,
+            'activity' => 'ajukan',
+            'description' => "Mengajukan pemeliharaan untuk {$barang->kode_barang}.",
+            'module' => 'pemeliharaan',
+            'reference_type' => 'pemeliharaan',
+            'reference_id' => $tiket->id,
+        ]);
 
-        // Riwayat aktivitas demo agar dashboard admin berisi data.
-        // Riwayat lain tetap hanya via factory testing / business process.
-        RiwayatAktivitas::factory()->count(11)->create();
+        // Riwayat aktivitas demo acak (factory) tetap dinonaktifkan untuk
+        // testing manual. Hapus komentar di bawah untuk seeding demo.
+        // RiwayatAktivitas::factory()->count(11)->create();
     }
 }

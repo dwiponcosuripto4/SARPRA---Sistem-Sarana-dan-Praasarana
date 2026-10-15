@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+//
 use App\Models\Barang;
 use App\Models\JenisPemeliharaan;
 use App\Models\Pemeliharaan;
@@ -9,6 +10,7 @@ use App\Models\Prioritas;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+//
 /**
  * @extends Factory<Pemeliharaan>
  */
@@ -16,10 +18,12 @@ class PemeliharaanFactory extends Factory
 {
     protected $model = Pemeliharaan::class;
 
+    //
     public function definition(): array
     {
         $status = fake()->randomElement(['diajukan', 'dalam_pemeliharaan', 'selesai', 'ditolak']);
 
+        //
         return [
             'barang_id' => Barang::inRandomOrder()->value('id'),
             'jenis_pemeliharaan_id' => JenisPemeliharaan::inRandomOrder()->value('id'),

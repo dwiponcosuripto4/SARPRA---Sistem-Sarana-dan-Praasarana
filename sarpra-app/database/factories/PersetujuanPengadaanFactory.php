@@ -2,11 +2,13 @@
 
 namespace Database\Factories;
 
+//
 use App\Models\Pengadaan;
 use App\Models\PersetujuanPengadaan;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+//
 /**
  * @extends Factory<PersetujuanPengadaan>
  */
@@ -14,6 +16,7 @@ class PersetujuanPengadaanFactory extends Factory
 {
     protected $model = PersetujuanPengadaan::class;
 
+    //
     public function definition(): array
     {
         return [

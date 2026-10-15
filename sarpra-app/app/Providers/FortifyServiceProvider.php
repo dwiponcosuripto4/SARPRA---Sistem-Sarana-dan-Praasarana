@@ -67,11 +67,16 @@ class FortifyServiceProvider extends ServiceProvider
             $user = User::where('email', strtolower($identity))->first()
                 ?? User::where('name', $identity)->first();
 
-            if ($user && Hash::check((string) $request->input('password'), $user->password)) {
-                return $user;
+            if (! $user || ! Hash::check((string) $request->input('password'), $user->password)) {
+                return null;
             }
 
-            return null;
+            // Akun nonaktif tidak dapat masuk.
+            if (! $user->is_active) {
+                return null;
+            }
+
+            return $user;
         });
     }
 

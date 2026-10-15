@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+//
 use App\Models\KategoriBarang;
 use App\Models\Perencanaan;
 use App\Models\Periode;
@@ -10,6 +11,7 @@ use App\Models\Satuan;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+//
 /**
  * @extends Factory<Perencanaan>
  */
@@ -17,6 +19,7 @@ class PerencanaanFactory extends Factory
 {
     protected $model = Perencanaan::class;
 
+    //
     public function definition(): array
     {
         $barang = fake()->randomElement([
@@ -25,6 +28,7 @@ class PerencanaanFactory extends Factory
             'Komputer PC',
         ]);
 
+        //
         return [
             'user_id' => User::inRandomOrder()->value('id'),
             'kategori_barang_id' => KategoriBarang::inRandomOrder()->value('id'),

@@ -2,12 +2,14 @@
 
 namespace Database\Factories;
 
+//
 use App\Models\DetailPengadaan;
 use App\Models\KategoriBarang;
 use App\Models\Pengadaan;
 use App\Models\Satuan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+//
 /**
  * @extends Factory<DetailPengadaan>
  */
@@ -15,11 +17,13 @@ class DetailPengadaanFactory extends Factory
 {
     protected $model = DetailPengadaan::class;
 
+    //
     public function definition(): array
     {
         $jumlah = fake()->numberBetween(1, 20);
         $harga = fake()->numberBetween(500000, 150000000);
 
+        //
         return [
             'pengadaan_id' => Pengadaan::inRandomOrder()->value('id'),
             'kategori_barang_id' => KategoriBarang::inRandomOrder()->value('id'),

@@ -45,6 +45,7 @@ class UserSeeder extends Seeder
             );
         }
 
-        User::factory()->count(11)->create();
+        // 1 user dummy tambahan. Hapus komentar di bawah untuk menonaktifkan.
+        User::factory()->count(1)->create();
     }
 }
