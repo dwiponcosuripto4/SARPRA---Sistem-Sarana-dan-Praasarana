@@ -10,14 +10,11 @@
                 <p class="text-sm text-[#515f74] leading-relaxed">Pusat standarisasi dan kamus data klasifikasi inventaris, lokasi prasarana, serta parameter operasional SARPRA.</p>
             </div>
             <div class="flex items-center flex-wrap gap-2.5">
-                <button type="button" onclick="document.getElementById('modalImpor').classList.remove('hidden')" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-white border border-[#e2e7ff] text-[#0f172a] hover:bg-[#f1f5f9] transition-colors shadow-xs">
-                    <span class="material-symbols-outlined text-lg text-[#515f74]">upload_file</span>Import CSV / Excel
-                </button>
-                <a href="{{ route('master.ekspor', ['entitas' => $kunci]) }}" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-white border border-[#e2e7ff] text-[#0f172a] hover:bg-[#f1f5f9] transition-colors shadow-xs">
+                <a href="{{ route('master.ekspor') }}" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-white border border-[#e2e7ff] text-[#0f172a] hover:bg-[#f1f5f9] transition-colors shadow-xs">
                     <span class="material-symbols-outlined text-lg text-[#515f74]">download</span>Ekspor Kamus Data
                 </a>
                 <button type="button" onclick="bukaModalTambah()" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-[#022448] text-white hover:bg-[#1e3a5f] transition-colors shadow-sm">
-                    <span class="material-symbols-outlined text-lg">add_circle</span>+ Tambah Data Baru
+                    <span class="material-symbols-outlined text-lg">add_circle</span>Tambah Data Baru
                 </button>
             </div>
         </div>
@@ -111,7 +108,7 @@
                 </div>
                 <button type="submit" class="hidden">Cari</button>
                 <button type="button" onclick="bukaModalTambah()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg bg-[#022448] text-white hover:bg-[#1e3a5f] transition-colors md:ml-auto">
-                    <span class="material-symbols-outlined text-lg">add</span>+ Tambah {{ $daftar[$kunci]['label'] }} Baru
+                    <span class="material-symbols-outlined text-lg">add</span>Tambah {{ $daftar[$kunci]['label'] }} Baru
                 </button>
             </form>
 
@@ -226,11 +223,11 @@
                 <div id="methodMaster"></div>
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-semibold text-[#0f172a]" for="masterNama">Nama <span class="text-[#ba1a1a]">*</span></label>
-                    <input class="h-10 px-4 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="masterNama" name="name" required type="text" maxlength="100">
+                    <input class="h-10 px-4 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="masterNama" name="name" value="{{ old('name') }}" required type="text" maxlength="100">
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-semibold text-[#0f172a]" for="masterDeskripsi">Keterangan</label>
-                    <textarea class="p-3 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="masterDeskripsi" name="description" rows="3" maxlength="255"></textarea>
+                    <textarea class="p-3 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="masterDeskripsi" name="description" rows="3" maxlength="255">{{ old('description') }}</textarea>
                 </div>
                 <div class="flex items-center justify-end gap-2 mt-1">
                     <button class="px-5 py-2 text-[#515f74] hover:text-[#0f172a] hover:bg-[#f1f5f9] rounded-lg text-sm transition-colors" onclick="tutupModalMaster()" type="button">Batalkan</button>
@@ -240,28 +237,12 @@
         </div>
     </div>
 
-    {{-- Modal impor --}}
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#283044]/40 backdrop-blur-sm hidden" id="modalImpor">
-        <div class="relative w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
-            <div class="flex items-center justify-between px-5 py-4 bg-[#f1f5f9]">
-                <h3 class="text-base font-bold text-[#0f172a]">Import CSV {{ $daftar[$kunci]['label'] }}</h3>
-                <button class="p-1 rounded-lg text-[#515f74] hover:text-[#0f172a] hover:bg-[#e2e7ff] transition-colors" onclick="document.getElementById('modalImpor').classList.add('hidden')" type="button">
-                    <span class="material-symbols-outlined text-xl">close</span>
-                </button>
-            </div>
-            <form method="POST" action="{{ route('master.impor', ['entitas' => $kunci]) }}" enctype="multipart/form-data" class="p-5 flex flex-col gap-3">
-                @csrf
-                <p class="text-xs text-[#515f74]">Berkas CSV: kolom pertama nama (wajib), kolom kedua keterangan (opsional). Baris duplikat dilewati.</p>
-                <input class="text-sm text-[#0f172a] file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#022448] file:text-white file:text-xs file:font-semibold hover:file:bg-[#1e3a5f]" name="berkas" required type="file" accept=".csv,.txt">
-                <div class="flex items-center justify-end gap-2 mt-1">
-                    <button class="px-5 py-2 text-[#515f74] hover:text-[#0f172a] hover:bg-[#f1f5f9] rounded-lg text-sm transition-colors" onclick="document.getElementById('modalImpor').classList.add('hidden')" type="button">Batalkan</button>
-                    <button class="px-6 py-2 bg-[#022448] hover:bg-[#1e3a5f] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors" type="submit">Impor</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
+        // Buka kembali modal tambah bila validasi gagal (mis. auto-submit
+        // ekstensi pengisi form), agar isian tidak hilang sia-sia.
+        @if ($errors->any())
+            document.getElementById('modalMaster').classList.remove('hidden');
+        @endif
         const modalMaster = document.getElementById('modalMaster');
         const formMaster = document.getElementById('formMaster');
 

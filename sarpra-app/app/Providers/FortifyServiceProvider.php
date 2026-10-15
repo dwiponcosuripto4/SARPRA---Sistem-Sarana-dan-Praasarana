@@ -37,7 +37,8 @@ class FortifyServiceProvider extends ServiceProvider
 
         // Catat waktu login terakhir + riwayat aktivitas login pengguna.
         Event::listen(Login::class, function (Login $event): void {
-            $event->user->forceFill(['last_login_at' => now()])->save();
+            User::whereKey($event->user->getAuthIdentifier())
+                ->update(['last_login_at' => now()]);
 
             RiwayatAktivitas::create([
                 'user_id' => $event->user->getAuthIdentifier(),

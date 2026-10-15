@@ -360,11 +360,22 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('pengguna.index')->with('status', "Akun {$user->name} dibuat.");
     })->name('pengguna.store');
 
-    Route::post('admin/pengguna/{user}/toggle', function (User $user) use ($hanya) {
+    Route::post('admin/pengguna/{user}/toggle', function (Request $request, User $user) use ($hanya) {
         $hanya('Administrator');
         abort_if($user->id === Auth::id(), 403, 'Tidak dapat menonaktifkan akun sendiri.');
 
         $user->update(['is_active' => ! $user->is_active]);
+
+        RiwayatAktivitas::create([
+            'user_id' => Auth::id(),
+            'activity' => 'ubah_status',
+            'description' => ($user->is_active ? 'Mengaktifkan' : 'Menonaktifkan')." akun {$user->name} ({$user->email}).",
+            'module' => 'pengguna',
+            'reference_type' => 'user',
+            'reference_id' => $user->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         return redirect()->route('pengguna.index')->with(
             'status',
@@ -384,6 +395,20 @@ Route::middleware(['auth'])->group(function () {
         $ids = array_filter($data['ids'], fn ($id) => (int) $id !== Auth::id());
 
         User::whereIn('id', $ids)->update(['is_active' => $data['aksi'] === 'aktifkan']);
+
+        $aksi = $data['aksi'] === 'aktifkan' ? 'Mengaktifkan' : 'Menonaktifkan';
+        foreach (User::whereIn('id', $ids)->get() as $target) {
+            RiwayatAktivitas::create([
+                'user_id' => Auth::id(),
+                'activity' => 'ubah_status',
+                'description' => "{$aksi} akun {$target->name} ({$target->email}) via aksi massal.",
+                'module' => 'pengguna',
+                'reference_type' => 'user',
+                'reference_id' => $target->id,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
 
         return redirect()->route('pengguna.index')->with(
             'status',
@@ -465,7 +490,7 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('master.index');
 
-    Route::post('admin/master/{entitas}', function (Request $request, string $entitas) use ($hanya, $modelMaster) {
+    Route::post('admin/master/{entitas}', function (Request $request, string $entitas) use ($hanya, $modelMaster, $daftarMaster) {
         $hanya('Administrator');
         $model = $modelMaster($entitas);
 
@@ -474,12 +499,23 @@ Route::middleware(['auth'])->group(function () {
             'description' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $model::create($data);
+        $row = $model::create($data);
+
+        RiwayatAktivitas::create([
+            'user_id' => Auth::id(),
+            'activity' => 'tambah',
+            'description' => "Menambahkan {$daftarMaster[$entitas]['label']}: {$row->name}.",
+            'module' => 'master',
+            'reference_type' => $entitas,
+            'reference_id' => $row->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         return redirect()->route('master.index', ['entitas' => $entitas])->with('status', "Data {$data['name']} ditambahkan.");
     })->name('master.store');
 
-    Route::put('admin/master/{entitas}/{id}', function (Request $request, string $entitas, int $id) use ($hanya, $modelMaster) {
+    Route::put('admin/master/{entitas}/{id}', function (Request $request, string $entitas, int $id) use ($hanya, $modelMaster, $daftarMaster) {
         $hanya('Administrator');
         $model = $modelMaster($entitas);
         $row = $model::findOrFail($id);
@@ -491,10 +527,21 @@ Route::middleware(['auth'])->group(function () {
 
         $row->update($data);
 
+        RiwayatAktivitas::create([
+            'user_id' => Auth::id(),
+            'activity' => 'ubah',
+            'description' => "Mengubah {$daftarMaster[$entitas]['label']}: {$row->name}.",
+            'module' => 'master',
+            'reference_type' => $entitas,
+            'reference_id' => $row->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
         return redirect()->route('master.index', ['entitas' => $entitas])->with('status', "Data {$row->name} diperbarui.");
     })->name('master.update');
 
-    Route::delete('admin/master/{entitas}/{id}', function (string $entitas, int $id) use ($hanya, $modelMaster, $daftarMaster) {
+    Route::delete('admin/master/{entitas}/{id}', function (Request $request, string $entitas, int $id) use ($hanya, $modelMaster, $daftarMaster) {
         $hanya('Administrator');
         $model = $modelMaster($entitas);
         $row = $model::findOrFail($id);
@@ -507,59 +554,62 @@ Route::middleware(['auth'])->group(function () {
             );
         }
 
+        $nama = $row->name;
         $row->delete();
 
-        return redirect()->route('master.index', ['entitas' => $entitas])->with('status', "Data {$row->name} dihapus.");
+        RiwayatAktivitas::create([
+            'user_id' => Auth::id(),
+            'activity' => 'hapus',
+            'description' => "Menghapus {$daftarMaster[$entitas]['label']}: {$nama}.",
+            'module' => 'master',
+            'reference_type' => $entitas,
+            'reference_id' => $id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return redirect()->route('master.index', ['entitas' => $entitas])->with('status', "Data {$nama} dihapus.");
     })->name('master.destroy');
 
-    Route::get('admin/master/{entitas}/ekspor', function (string $entitas) use ($hanya, $modelMaster) {
+    Route::get('admin/master/ekspor/{entitas?}', function (string $entitas = null) use ($hanya, $daftarMaster) {
         $hanya('Administrator');
-        $model = $modelMaster($entitas);
 
-        $baris = $model::latest()->get();
+        if ($entitas !== null && ! array_key_exists($entitas, $daftarMaster)) {
+            abort(404);
+        }
 
-        return response()->streamDownload(function () use ($baris) {
+        $entitass = $entitas !== null ? [$entitas] : array_keys($daftarMaster);
+        $satu = count($entitass) === 1;
+
+        return response()->streamDownload(function () use ($daftarMaster, $entitass, $satu) {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['Nama', 'Deskripsi']);
+            fputcsv($out, $satu ? ['Nama', 'Deskripsi'] : ['Entitas', 'Nama', 'Deskripsi', 'Total Relasi']);
 
-            foreach ($baris as $row) {
-                fputcsv($out, [$row->name, $row->description]);
+            foreach ($entitass as $key) {
+                [$relModel, $relKolom] = $daftarMaster[$key]['relasi'];
+                $counts = $relModel::selectRaw("{$relKolom} as id, COUNT(*) as jml")
+                    ->groupBy($relKolom)
+                    ->pluck('jml', 'id');
+
+                foreach ($daftarMaster[$key]['model']::orderBy('name')->get() as $row) {
+                    if ($satu) {
+                        fputcsv($out, [$row->name, $row->description]);
+                    } else {
+                        fputcsv($out, [
+                            $daftarMaster[$key]['label'],
+                            $row->name,
+                            $row->description,
+                            $counts[$row->id] ?? 0,
+                        ]);
+                    }
+                }
             }
 
             fclose($out);
-        }, "master-{$entitas}-".now()->format('Ymd-His').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+        }, 'kamus-data-sarpra-'.now()->format('Ymd-His').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     })->name('master.ekspor');
 
-    Route::post('admin/master/{entitas}/impor', function (Request $request, string $entitas) use ($hanya, $modelMaster) {
-        $hanya('Administrator');
-        $model = $modelMaster($entitas);
-
-        $request->validate(['berkas' => ['required', 'file', 'mimes:csv,txt', 'max:2048']]);
-
-        $isi = file($request->file('berkas')->getRealPath(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $masuk = 0;
-
-        foreach ($isi as $i => $baris) {
-            $kolom = str_getcsv($baris);
-            if ($i === 0 && isset($kolom[0]) && ! ctype_digit((string) $kolom[0]) && str_contains(strtolower($kolom[0]), 'nama')) {
-                continue;
-            }
-
-            $name = trim((string) ($kolom[0] ?? ''));
-            if ($name === '' || $model::where('name', $name)->exists()) {
-                continue;
-            }
-
-            $model::create([
-                'name' => mb_substr($name, 0, 100),
-                'description' => isset($kolom[1]) ? mb_substr(trim((string) $kolom[1]), 0, 255) : null,
-            ]);
-            $masuk++;
-        }
-
-        return redirect()->route('master.index', ['entitas' => $entitas])->with('status', "{$masuk} baris diimpor ke {$entitas}.");
-    })->name('master.impor');
 
     Route::get('admin/aktivitas', function (Request $request) use ($aktivitasQuery, $shell, $hanya) {
         $hanya('Administrator');
