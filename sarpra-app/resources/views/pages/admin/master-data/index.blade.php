@@ -13,7 +13,7 @@
                 <a href="{{ route('master.ekspor') }}" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-white border border-[#e2e7ff] text-[#0f172a] hover:bg-[#f1f5f9] transition-colors shadow-xs">
                     <span class="material-symbols-outlined text-lg text-[#515f74]">download</span>Ekspor Kamus Data
                 </a>
-                <button type="button" onclick="bukaModalTambah()" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-[#022448] text-white hover:bg-[#1e3a5f] transition-colors shadow-sm">
+                <button type="button" onclick="document.getElementById('modalPilihEntitas').classList.remove('hidden')" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-[#022448] text-white hover:bg-[#1e3a5f] transition-colors shadow-sm">
                     <span class="material-symbols-outlined text-lg">add_circle</span>Tambah Data Baru
                 </button>
             </div>
@@ -209,9 +209,55 @@
         </footer>
     </div>
 
-    {{-- Modal tambah/ubah --}}
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#283044]/40 backdrop-blur-sm hidden" id="modalMaster">
+    {{-- Modal tambah data baru: pilih entitas master dulu --}}
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#283044]/40 backdrop-blur-sm hidden" id="modalPilihEntitas">
         <div class="relative w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="flex items-center justify-between px-5 py-4 bg-[#f1f5f9]">
+                <h3 class="text-base font-bold text-[#0f172a]">Tambah Data Baru</h3>
+                <button class="p-1 rounded-lg text-[#515f74] hover:text-[#0f172a] hover:bg-[#e2e7ff] transition-colors" onclick="document.getElementById('modalPilihEntitas').classList.add('hidden')" type="button">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+            <form method="POST" action="{{ route('master.store', ['entitas' => $kunci]) }}" id="formPilihEntitas" class="p-5 flex flex-col gap-3">
+                @csrf
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-[#0f172a]" for="pilihEntitas">Master data <span class="text-[#ba1a1a]">*</span></label>
+                    <select class="h-10 px-4 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="pilihEntitas" required>
+                        @foreach ($daftar as $key => $entitas)
+                            <option value="{{ $key }}" @selected($kunci === $key)>{{ $entitas['label'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-[#0f172a]" for="baruNama">Nama <span class="text-[#ba1a1a]">*</span></label>
+                    <input class="h-10 px-4 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="baruNama" name="name" required type="text" maxlength="100">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-[#0f172a]" for="baruDeskripsi">Keterangan</label>
+                    <textarea class="p-3 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="baruDeskripsi" name="description" rows="3" maxlength="255"></textarea>
+                </div>
+                <div class="flex items-center justify-end gap-2 mt-1">
+                    <button class="px-5 py-2 text-[#515f74] hover:text-[#0f172a] hover:bg-[#f1f5f9] rounded-lg text-sm transition-colors" onclick="document.getElementById('modalPilihEntitas').classList.add('hidden')" type="button">Batalkan</button>
+                    <button class="px-6 py-2 bg-[#022448] hover:bg-[#1e3a5f] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors" type="submit">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const form = document.getElementById('formPilihEntitas');
+            const pilih = document.getElementById('pilihEntitas');
+            const tujuan = @json(collect($daftar)->mapWithKeys(fn ($entitas, $key) => [$key => route('master.store', ['entitas' => $key])]));
+            const aturAksi = () => form.action = tujuan[pilih.value];
+            pilih.addEventListener('change', aturAksi);
+            form.addEventListener('submit', aturAksi);
+            aturAksi();
+        })();
+    </script>
+
+    {{-- Modal tambah/ubah per entitas aktif --}}
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#283044]/40 backdrop-blur-sm hidden" id="modalMaster">        <div class="relative w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
             <div class="flex items-center justify-between px-5 py-4 bg-[#f1f5f9]">
                 <h3 class="text-base font-bold text-[#0f172a]" id="modalJudul">Tambah {{ $daftar[$kunci]['label'] }}</h3>
                 <button class="p-1 rounded-lg text-[#515f74] hover:text-[#0f172a] hover:bg-[#e2e7ff] transition-colors" onclick="tutupModalMaster()" type="button">
@@ -223,11 +269,11 @@
                 <div id="methodMaster"></div>
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-semibold text-[#0f172a]" for="masterNama">Nama <span class="text-[#ba1a1a]">*</span></label>
-                    <input class="h-10 px-4 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="masterNama" name="name" value="{{ old('name') }}" required type="text" maxlength="100">
+                    <input class="h-10 px-4 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="masterNama" name="name" required type="text" maxlength="100">
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-semibold text-[#0f172a]" for="masterDeskripsi">Keterangan</label>
-                    <textarea class="p-3 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="masterDeskripsi" name="description" rows="3" maxlength="255">{{ old('description') }}</textarea>
+                    <textarea class="p-3 bg-[#f1f5f9] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" id="masterDeskripsi" name="description" rows="3" maxlength="255"></textarea>
                 </div>
                 <div class="flex items-center justify-end gap-2 mt-1">
                     <button class="px-5 py-2 text-[#515f74] hover:text-[#0f172a] hover:bg-[#f1f5f9] rounded-lg text-sm transition-colors" onclick="tutupModalMaster()" type="button">Batalkan</button>
@@ -238,11 +284,6 @@
     </div>
 
     <script>
-        // Buka kembali modal tambah bila validasi gagal (mis. auto-submit
-        // ekstensi pengisi form), agar isian tidak hilang sia-sia.
-        @if ($errors->any())
-            document.getElementById('modalMaster').classList.remove('hidden');
-        @endif
         const modalMaster = document.getElementById('modalMaster');
         const formMaster = document.getElementById('formMaster');
 

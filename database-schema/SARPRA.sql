@@ -1,10 +1,10 @@
 
  // =====================================================
-// SARPRA — Sistem Pengelolaan Sarana dan Prasarana
-// Database Schema
-// =====================================================
+ // SARPRA — Sistem Pengelolaan Sarana dan Prasarana
+ // Database Schema
+ // =====================================================
 
-// SISTEM & PENGGUNA
+ // SISTEM & PENGGUNA
 Table role {
   id bigint [pk, increment]
   name varchar(50) [unique, not null]
@@ -109,9 +109,13 @@ Table perencanaan {
   nama_kebutuhan varchar(150) [not null]
   jumlah int [not null]
   alasan text
-  status varchar(50) [not null]
+  status varchar(50) [not null, note: 'Nilai yang diizinkan: Draft, Diajukan. Tidak memerlukan persetujuan Pimpinan.']
   created_at timestamp
   updated_at timestamp
+
+  checks {
+    `status IN ('Draft', 'Diajukan')` [name: 'chk_perencanaan_status']
+  }
 }
 
 Table riwayat_perencanaan {
@@ -294,6 +298,7 @@ Table riwayat_aktivitas {
 Ref: user.role_id > role.id
 
 // Perencanaan
+// Status hanya Draft dan Diajukan; tidak ada relasi persetujuan Pimpinan.
 Ref: perencanaan.user_id > user.id
 Ref: perencanaan.kategori_barang_id > kategori_barang.id
 Ref: perencanaan.satuan_id > satuan.id

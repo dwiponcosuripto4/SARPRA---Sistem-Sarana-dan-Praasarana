@@ -702,6 +702,17 @@ Route::middleware(['auth'])->group(function () {
             'catatan' => 'Usulan dibuat.',
         ]);
 
+        RiwayatAktivitas::create([
+            'user_id' => Auth::id(),
+            'activity' => 'tambah',
+            'description' => "Membuat usulan kebutuhan {$rencana->nama_kebutuhan}.",
+            'module' => 'perencanaan',
+            'reference_type' => 'perencanaan',
+            'reference_id' => $rencana->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
         return redirect()->route('perencanaan.index')->with('status', "Kebutuhan {$rencana->nama_kebutuhan} disimpan sebagai draft.");
     })->name('perencanaan.store');
 
@@ -729,10 +740,21 @@ Route::middleware(['auth'])->group(function () {
             'alasan' => $data['alasan'],
         ]);
 
+        RiwayatAktivitas::create([
+            'user_id' => Auth::id(),
+            'activity' => 'ubah',
+            'description' => "Mengubah usulan kebutuhan {$perencanaan->nama_kebutuhan}.",
+            'module' => 'perencanaan',
+            'reference_type' => 'perencanaan',
+            'reference_id' => $perencanaan->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
         return redirect()->route('perencanaan.index')->with('status', "Kebutuhan {$perencanaan->nama_kebutuhan} diperbarui.");
     })->name('perencanaan.update');
 
-    Route::delete('pengelolaan/perencanaan/{perencanaan}', function (Perencanaan $perencanaan) use ($hanya) {
+    Route::delete('pengelolaan/perencanaan/{perencanaan}', function (Request $request, Perencanaan $perencanaan) use ($hanya) {
         $hanya('Pengelola Sarana & Prasarana');
         abort_if($perencanaan->status !== 'draft', 403, 'Hanya draft yang dapat dihapus.');
 
@@ -743,13 +765,26 @@ Route::middleware(['auth'])->group(function () {
             );
         }
 
+        $nama = $perencanaan->nama_kebutuhan;
+        $id = $perencanaan->id;
         $perencanaan->riwayat()->delete();
         $perencanaan->delete();
+
+        RiwayatAktivitas::create([
+            'user_id' => Auth::id(),
+            'activity' => 'hapus',
+            'description' => "Menghapus usulan kebutuhan {$nama}.",
+            'module' => 'perencanaan',
+            'reference_type' => 'perencanaan',
+            'reference_id' => $id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         return redirect()->route('perencanaan.index')->with('status', 'Usulan kebutuhan dihapus.');
     })->name('perencanaan.destroy');
 
-    Route::post('pengelolaan/perencanaan/{perencanaan}/ajukan', function (Perencanaan $perencanaan) use ($hanya) {
+    Route::post('pengelolaan/perencanaan/{perencanaan}/ajukan', function (Request $request, Perencanaan $perencanaan) use ($hanya) {
         $hanya('Pengelola Sarana & Prasarana');
         abort_if($perencanaan->status !== 'draft', 403, 'Hanya draft yang dapat diajukan.');
 
@@ -760,6 +795,17 @@ Route::middleware(['auth'])->group(function () {
             'user_id' => Auth::id(),
             'status' => 'diajukan',
             'catatan' => 'Usulan dikirim untuk diproses.',
+        ]);
+
+        RiwayatAktivitas::create([
+            'user_id' => Auth::id(),
+            'activity' => 'ajukan',
+            'description' => "Mengajukan usulan kebutuhan {$perencanaan->nama_kebutuhan}.",
+            'module' => 'perencanaan',
+            'reference_type' => 'perencanaan',
+            'reference_id' => $perencanaan->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
 
         return redirect()->route('perencanaan.index')->with('status', "Kebutuhan {$perencanaan->nama_kebutuhan} diajukan.");
@@ -852,10 +898,23 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('pengadaan.index');
 
+    Route::get('pengelolaan/pengadaan/create', function () use ($shell, $hanya) {
+        $hanya('Pengelola Sarana & Prasarana');
+
+        return view('pages.pengelola.pengadaan.create', [
+            ...$shell('pengadaan'),
+            'jeniss' => JenisPengadaan::orderBy('name')->get(),
+            'satuans' => Satuan::orderBy('name')->get(),
+            'kategoris' => KategoriBarang::orderBy('name')->get(),
+            'perencanaans' => Perencanaan::with('prioritas')->latest()->take(50)->get(),
+        ]);
+    })->name('pengadaan.create');
+
     Route::post('pengelolaan/pengadaan', function (Request $request) use ($hanya) {
         $hanya('Pengelola Sarana & Prasarana');
 
         $data = $request->validate([
+            'nama_pengajuan' => ['nullable', 'string', 'max:150'],
             'jenis_pengadaan_id' => ['required', 'exists:jenis_pengadaan,id'],
             'perencanaan_id' => ['nullable', 'exists:perencanaan,id'],
             'tanggal_pengajuan' => ['required', 'date'],
@@ -873,6 +932,7 @@ Route::middleware(['auth'])->group(function () {
         ]);
 
         $status = $data['aksi'] === 'kirim' ? 'menunggu_persetujuan' : 'draft';
+        $alasan = trim(($data['nama_pengajuan'] ?? '').($data['nama_pengajuan'] && ($data['alasan'] ?? null) ? "\n\n" : '').($data['alasan'] ?? ''));
 
         $pengadaan = Pengadaan::create([
             'nomor_pengadaan' => 'PGD-'.now()->format('Y').'-'.str_pad((int) Pengadaan::max('id') + 1, 3, '0', STR_PAD_LEFT),
@@ -880,7 +940,7 @@ Route::middleware(['auth'])->group(function () {
             'jenis_pengadaan_id' => $data['jenis_pengadaan_id'],
             'user_id' => Auth::id(),
             'tanggal_pengajuan' => $data['tanggal_pengajuan'],
-            'alasan' => $data['alasan'] ?? null,
+            'alasan' => $alasan !== '' ? $alasan : null,
             'status' => $status,
         ]);
 

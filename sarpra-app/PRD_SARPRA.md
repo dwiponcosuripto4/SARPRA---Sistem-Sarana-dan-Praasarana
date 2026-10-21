@@ -98,7 +98,7 @@ Dashboard Pimpinan difokuskan pada monitoring dan pengambilan keputusan.
 
 ## 4.2 Modul Perencanaan Kebutuhan
 
-Digunakan untuk mencatat dan mengelola kebutuhan sarana-prasarana.
+Digunakan untuk mencatat dan mengelola kebutuhan sarana-prasarana sebagai dokumentasi dan bahan pertimbangan dalam proses pengadaan. Pengajuan perencanaan tidak memerlukan persetujuan formal dari Pimpinan.
 
 **Fitur:** - Daftar kebutuhan. - Tambah kebutuhan. - Detail kebutuhan. -
 Edit kebutuhan. - Hapus kebutuhan. - Menentukan jumlah kebutuhan. -
@@ -107,6 +107,8 @@ kebutuhan. - Menentukan periode/tahun kebutuhan. - Status kebutuhan. -
 Riwayat kebutuhan.
 
 **Status utama:** - Draft - Diajukan
+
+**Aturan status:** - `Draft`: kebutuhan tersimpan dan masih dapat dikelola oleh Pengelola. - `Diajukan`: kebutuhan telah diajukan untuk dokumentasi dan tindak lanjut, serta dapat dipertimbangkan sebagai dasar pengadaan. Status ini bukan tanda persetujuan formal dari Pimpinan.
 
 ------------------------------------------------------------------------
 
@@ -593,7 +595,12 @@ Status = Draft
 Ajukan kebutuhan?
   ├── Tidak → Tetap Draft
   └── Ya → Status = Diajukan
+             ↓
+       Dicatat untuk dokumentasi
+       dan tindak lanjut pengadaan
 ```
+
+Pengajuan perencanaan tidak melewati proses persetujuan atau penolakan formal dari Pimpinan. Persetujuan formal dilakukan pada modul Pengadaan.
 
 Data utama:
 - Kebutuhan.

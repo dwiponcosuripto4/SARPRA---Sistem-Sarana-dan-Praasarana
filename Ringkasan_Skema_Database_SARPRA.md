@@ -148,6 +148,14 @@ Pengelola Sarana & Prasarana
     └── notifikasi
 ```
 
+## Aturan Status Perencanaan
+
+- Status perencanaan disimpan langsung pada kolom status di tabel `perencanaan`.
+- Status yang digunakan adalah `Draft` dan `Diajukan`.
+- `Diajukan` berarti perencanaan dicatat untuk dokumentasi dan tindak lanjut pengadaan, bukan persetujuan formal dari Pimpinan.
+- Tidak diperlukan tabel `persetujuan_perencanaan` maupun foreign key/relasi persetujuan Pimpinan khusus untuk perencanaan.
+- Persetujuan formal oleh Pimpinan hanya dilakukan pada proses pengadaan melalui tabel `persetujuan_pengadaan`.
+
 ## Tabel yang Digunakan
 
 | Tabel                  | Fungsi Pengelola                                    |

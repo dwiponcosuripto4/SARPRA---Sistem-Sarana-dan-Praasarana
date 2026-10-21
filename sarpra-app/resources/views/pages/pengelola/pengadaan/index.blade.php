@@ -36,9 +36,9 @@
                 <a href="{{ route('pengadaan.ekspor', request()->query()) }}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[#e2e7ff] bg-white text-[#515f74] hover:text-[#022448] hover:bg-[#f1f5f9] text-xs font-semibold shadow-xs transition-colors">
                     <span class="material-symbols-outlined text-lg">file_download</span>Ekspor Laporan
                 </a>
-                <button type="button" onclick="document.getElementById('modalPengadaan').classList.remove('hidden')" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#022448] hover:bg-[#1e3a5f] text-white text-xs font-semibold shadow-sm transition-colors">
+                <a href="{{ route('pengadaan.create') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#022448] hover:bg-[#1e3a5f] text-white text-xs font-semibold shadow-sm transition-colors">
                     <span class="material-symbols-outlined text-lg">add</span>Buat Pengadaan Baru
-                </button>
+                </a>
             </div>
         </div>
 
@@ -327,87 +327,8 @@
         </div>
     </div>
 
-    {{-- Modal tambah --}}
-    <div id="modalPengadaan" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden">
-        <div class="bg-white w-full max-w-2xl rounded-xl border border-[#e2e7ff] shadow-lg flex flex-col max-h-[90vh] overflow-hidden">
-            <div class="px-6 py-4 border-b border-[#e2e7ff] flex items-center justify-between bg-[#f1f5f9]">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[#022448] text-[22px]">shopping_bag</span>
-                    <h2 class="text-base font-bold text-[#0f172a]">Buat Pengajuan Pengadaan</h2>
-                </div>
-                <button type="button" onclick="document.getElementById('modalPengadaan').classList.add('hidden')" class="p-1 text-[#515f74] hover:text-[#0f172a] hover:bg-[#e2e7ff] rounded-lg transition-colors">
-                    <span class="material-symbols-outlined text-xl">close</span>
-                </button>
-            </div>
-            <form method="POST" action="{{ route('pengadaan.store') }}" enctype="multipart/form-data" class="p-6 overflow-y-auto space-y-4 text-xs">
-                @csrf
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-[#0f172a] mb-1">Jenis Pengadaan <span class="text-[#dc2626]">*</span></label>
-                        <select name="jenis_pengadaan_id" required class="w-full h-9 px-3 bg-[#f1f5f9] border border-[#e2e7ff] rounded-lg text-xs text-[#0f172a] focus:outline-none focus:border-[#1e3a5f]">
-                            <option value="">-- Pilih Jenis --</option>
-                            @foreach ($jeniss as $j)
-                                <option value="{{ $j->id }}">{{ $j->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-bold text-[#0f172a] mb-1">Tanggal Pengajuan <span class="text-[#dc2626]">*</span></label>
-                        <input type="date" name="tanggal_pengajuan" required value="{{ now()->format('Y-m-d') }}" class="w-full h-9 px-3 bg-[#f1f5f9] border border-[#e2e7ff] rounded-lg text-xs text-[#0f172a] focus:outline-none focus:border-[#1e3a5f]">
-                    </div>
-                </div>
-                <div>
-                    <label class="block font-bold text-[#0f172a] mb-1">Alasan Pengadaan</label>
-                    <textarea name="alasan" rows="2" placeholder="Jelaskan alasan pengadaan..." class="w-full p-2.5 bg-[#f1f5f9] border border-[#e2e7ff] rounded-lg text-xs text-[#0f172a] placeholder:text-[#94a3b8] focus:outline-none focus:border-[#1e3a5f]"></textarea>
-                </div>
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="font-bold text-[#0f172a]">Rincian Barang <span class="text-[#dc2626]">*</span></label>
-                        <button type="button" onclick="tambahBarisDetail()" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#d5e3fc]/50 hover:bg-[#d5e3fc] text-[#022448] text-[11px] font-bold transition-colors">
-                            <span class="material-symbols-outlined text-sm">add</span>Tambah Baris
-                        </button>
-                    </div>
-                    <div class="flex flex-col gap-2" id="daftarDetail"></div>
-                </div>
-                <div>
-                    <label class="block font-bold text-[#0f172a] mb-1">Dokumen Pendukung</label>
-                    <input type="file" name="dokumen[]" multiple accept=".pdf,.jpg,.jpeg,.png,.xls,.xlsx,.doc,.docx" class="w-full text-xs text-[#0f172a] file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#022448] file:text-white file:text-xs file:font-semibold hover:file:bg-[#1e3a5f]">
-                    <p class="text-[11px] text-[#515f74] mt-1">PDF/gambar/office, maks 10 MB per berkas.</p>
-                </div>
-                <div class="px-6 py-3.5 border-t border-[#e2e7ff] bg-[#f1f5f9] flex items-center justify-end gap-2 -mx-6 -mb-6 mt-2">
-                    <button type="submit" name="aksi" value="draft" class="px-4 py-2 text-xs font-semibold text-[#515f74] hover:text-[#0f172a] bg-white border border-[#e2e7ff] rounded-lg transition-colors">Simpan Draft</button>
-                    <button type="submit" name="aksi" value="kirim" class="px-4 py-2 text-xs font-bold text-white bg-[#022448] hover:bg-[#1e3a5f] rounded-lg shadow-sm transition-colors">Kirim Pengajuan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
         const rupiahID = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
-
-        function barisDetail() {
-            const wrap = document.createElement('div');
-            wrap.className = 'grid grid-cols-12 gap-2 p-2.5 rounded-lg bg-[#f1f5f9] border border-[#e2e7ff] baris-detail';
-            wrap.innerHTML = `
-                <input type="text" name="detail[][nama_barang]" required maxlength="150" placeholder="Nama barang *" class="col-span-12 sm:col-span-4 h-9 px-2.5 bg-white border border-[#e2e7ff] rounded-lg text-xs focus:outline-none focus:border-[#1e3a5f]">
-                <input type="text" name="detail[][spesifikasi]" placeholder="Spesifikasi" class="col-span-12 sm:col-span-4 h-9 px-2.5 bg-white border border-[#e2e7ff] rounded-lg text-xs focus:outline-none focus:border-[#1e3a5f]">
-                <input type="number" name="detail[][jumlah]" required min="1" value="1" placeholder="Jml" class="col-span-4 sm:col-span-1 h-9 px-2 bg-white border border-[#e2e7ff] rounded-lg text-xs focus:outline-none focus:border-[#1e3a5f]">
-                <select name="detail[][satuan_id]" required class="col-span-4 sm:col-span-1 h-9 px-1 bg-white border border-[#e2e7ff] rounded-lg text-xs focus:outline-none focus:border-[#1e3a5f]">
-                    @foreach (App\Models\Satuan::orderBy('name')->get() as $s)
-                        <option value="{{ $s->id }}">{{ $s->name }}</option>
-                    @endforeach
-                </select>
-                <input type="number" name="detail[][estimasi_harga]" required min="0" step="0.01" placeholder="Harga Rp" class="col-span-3 sm:col-span-1 h-9 px-2 bg-white border border-[#e2e7ff] rounded-lg text-xs focus:outline-none focus:border-[#1e3a5f]">
-                <button type="button" onclick="this.closest('.baris-detail').remove()" class="col-span-1 h-9 text-[#dc2626] hover:bg-red-50 rounded-lg flex items-center justify-center" title="Hapus baris">
-                    <span class="material-symbols-outlined text-lg">delete</span>
-                </button>`;
-            return wrap;
-        }
-
-        function tambahBarisDetail() {
-            document.getElementById('daftarDetail').appendChild(barisDetail());
-        }
-        tambahBarisDetail();
 
         const drawer = document.getElementById('drawerPengadaan');
 
